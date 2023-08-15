@@ -1,0 +1,22 @@
+.button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.button[disabled] {
+  margin: 10px 0 10px 0;
+  background-color: #ced4da;
+  cursor: not-allowed;
+}
+
+.button:not([disabled]) {
+  background-color: #007bff;
+  margin: 10px 0 10px 0;
+}
+
+.button:last-child {
+  background-color: #6c757d;
+}

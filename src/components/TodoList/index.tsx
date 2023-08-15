@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { ChangeEvent, useCallback, useMemo, useState } from 'react';
 import { ITodo } from '../../types/todo.types';
 import { TodoItem } from '../TodoItem';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './TodoList.module.css';
+import { Button } from '../Button';
+import { ButtonConfig } from '../../types/types';
+import { TextBox } from '../TextBox';
+import { CheckBox } from '../CheckBox';
+import { Label } from '../Label';
 
 const defaultTodoList: ITodo[] = [
   {
@@ -26,31 +31,33 @@ export const TodoList = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const isTodoExists = (todoName: string) => {
-    return todoList.some((todo) => todo.name === todoName);
-  };
+  const isTodoExists = useCallback(
+    (todoName: string) => todoList.some((todo) => todo.name === todoName),
+    [todoList]
+  );
 
-  const handleAddClick = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const handleAddClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      e.preventDefault();
 
-    if (isTodoExists(inputValue)) {
-      setError('A todo with this name already exists.');
-      return;
-    }
+      if (isTodoExists(inputValue)) {
+        setError('A todo with this name already exists.');
+        return;
+      }
 
-    setIsLoading(true);
+      setIsLoading(true);
 
-    addTodoTimeoutId = setTimeout(() => {
-      setTodoList((prevState) => [
-        ...prevState,
-        { id: uuidv4(), name: inputValue, completed: false },
-      ]);
-      setInputValue('');
-      setIsLoading(false);
-    }, 1000);
-  };
+      addTodoTimeoutId = setTimeout(() => {
+        setTodoList((prevState) => [
+          ...prevState,
+          { id: uuidv4(), name: inputValue, completed: false },
+        ]);
+        setInputValue('');
+        setIsLoading(false);
+      }, 1000);
+    },
+    [inputValue, isTodoExists]
+  );
 
   const handleCancelClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -72,7 +79,7 @@ export const TodoList = () => {
     );
   };
 
-  const onInputChange = (e: any) => {
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
     if (value) {
@@ -82,38 +89,44 @@ export const TodoList = () => {
     setInputValue(value);
   };
 
-  console.log({ error });
+  const buttonConfig: ButtonConfig[] = useMemo(
+    () => [
+      {
+        text: 'Add',
+        onClick: handleAddClick,
+        disabled: !inputValue || isLoading,
+      },
+      {
+        text: 'Cancel',
+        onClick: handleCancelClick,
+      },
+    ],
+    [handleAddClick, inputValue, isLoading]
+  );
 
   return (
     <div className={styles['todo-list-container']}>
       <div className={styles['list-form']}>
         <div className={styles['show-active-todos']}>
-          <input
-            onChange={(e: any) => setIsShowActive(e.target.checked)}
-            type="checkbox"
-            checked={isShowActive}
-          ></input>
-          <label className={styles['label']}>Show only active todos</label>
+          <CheckBox
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setIsShowActive(e.target.checked);
+            }}
+            value={isShowActive}
+          />
+          <Label text="Show only active todos" />
         </div>
 
-        <input
-          className={styles['input']}
-          onChange={onInputChange}
-          type="text"
-          value={inputValue}
-        ></input>
+        <TextBox onChange={onInputChange} value={inputValue} />
         {error && <p className={styles['error-message']}>{error}</p>}
-
-        <button
-          className={styles['button']}
-          onClick={handleAddClick}
-          disabled={!inputValue || isLoading}
-        >
-          Add
-        </button>
-        <button className={styles['button']} onClick={handleCancelClick}>
-          Cancel
-        </button>
+        {buttonConfig.map(({ onClick, disabled, text }: ButtonConfig) => (
+          <Button
+            key={text}
+            onClick={onClick}
+            disabled={disabled}
+            text={text}
+          />
+        ))}
       </div>
 
       <ul className={styles['scrollable-list']}>
