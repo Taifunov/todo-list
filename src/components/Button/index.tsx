@@ -8,7 +8,7 @@ type IButtonProps = {
 
 export const Button = ({ onClick, disabled, text }: IButtonProps) => {
   return (
-    <button className={styles['button']} onClick={onClick} disabled={disabled}>
+    <button className={styles.button} onClick={onClick} disabled={disabled}>
       {text}
     </button>
   );

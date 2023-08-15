@@ -9,7 +9,7 @@ type InputProps = {
 export const TextBox = ({ onChange, value }: InputProps) => {
   return (
     <input
-      className={styles['input']}
+      className={styles.input}
       onChange={onChange}
       type="text"
       value={value}

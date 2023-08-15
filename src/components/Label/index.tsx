@@ -5,5 +5,5 @@ type LabelProps = {
 };
 
 export const Label = ({ text }: LabelProps) => {
-  return <label className={styles['label']}>{text}</label>;
+  return <label className={styles.label}>{text}</label>;
 };
